@@ -9,3 +9,35 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Account {
+  id            String         @id @unique @default(uuid())
+  email         String         @unique
+  password      String
+  userName      String         @unique
+  refreshTokens RefreshToken[]
+  User          User[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model User {
+  id        String   @id @unique @default(uuid())
+  fullName  String
+  avatar    String?
+  bio       String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Account   Account  @relation(fields: [accountId], references: [id])
+  accountId String
+}
+
+model RefreshToken {
+  id          String   @id @unique @default(uuid())
+  hashedToken String
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
