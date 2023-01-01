@@ -7,6 +7,13 @@ interface Pagination {
   total: number;
 }
 
+interface IErrorData {
+  value?: string;
+  msg?: string;
+  param?: string;
+  location?: string;
+}
+
 const responseJson = (
   res: Response,
   status: number = 200,
@@ -24,3 +31,13 @@ const responseJson = (
 };
 
 export default responseJson;
+
+export const errorResponse = (
+  res: Response,
+  status: number = 200,
+  data?: IErrorData
+) => {
+  return responseJson(res, status, {
+    errors: [data],
+  });
+};

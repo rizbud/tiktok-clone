@@ -47,3 +47,11 @@ export const findAccountByUsername = async (username: string) => {
     },
   });
 };
+
+export const findAccountById = async (id: string) => {
+  return await db.account.findUnique({
+    where: {
+      id,
+    },
+  });
+};

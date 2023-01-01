@@ -28,6 +28,10 @@ export const generateRefreshToken = (user: IJwtPayload, jti: string) => {
   );
 };
 
+export const verifyAccessToken = (token: string) => {
+  return jwt.verify(token, JWT_REFRESH_SECRET) as jwt.JwtPayload;
+};
+
 export const generateToken = (user: IJwtPayload, jti: string) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user, jti);
