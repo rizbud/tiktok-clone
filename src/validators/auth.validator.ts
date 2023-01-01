@@ -30,3 +30,16 @@ export const registerValidator = [
     return true;
   }),
 ];
+
+export const loginValidator = [
+  body("username")
+    .isLength({ min: 6, max: 64 })
+    .withMessage("Username is required"),
+  check("username").custom(async (value) => {
+    const userExist = await findAccountByUsername(value);
+    if (!userExist) throw new Error("Username does not exist");
+  }),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+];
