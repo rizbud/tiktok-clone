@@ -1,0 +1,11 @@
+# Enviroment Variables
+.env
+.env.local
+
+# Build
+dist/
+
+# Node
+node_modules/
+npm-debug.*
+yarn-error.*
