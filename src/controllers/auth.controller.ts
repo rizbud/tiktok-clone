@@ -33,20 +33,13 @@ export const register = async (req: Request, res: Response) => {
       fullName,
     });
 
-    const jti = uuidv4();
-    const accessToken = generateToken(
-      {
-        accountId: Account.id,
-      },
-      jti
-    );
-
-    await addRefreshTokenToWhitelist(jti, accessToken.refreshToken, Account.id);
-
     return responseJson(res, 201, {
       message: "User created successfully",
-      accessToken: accessToken.accessToken,
-      refreshToken: accessToken.refreshToken,
+      account: {
+        id: Account.id,
+        username: Account.userName,
+        email: Account.email,
+      },
     });
   } catch (error) {
     return responseJson(res, 500, { error });
@@ -63,36 +56,37 @@ export const login = async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   try {
-    const user = await findAccountByUsername(username);
-    const isValid = await bcrypt.compare(password, user!.password);
+    const account = await findAccountByUsername(username);
+    const isValid = await bcrypt.compare(password, account!.password);
 
     if (!isValid) {
-      return responseJson(res, 401, {
-        errors: [
-          {
-            value: password,
-            msg: "Invalid password",
-            param: "password",
-            location: "body",
-          },
-        ],
+      return errorResponse(res, 401, {
+        value: password,
+        msg: "Invalid password",
+        param: "password",
+        location: "body",
       });
     }
 
     const jti = uuidv4();
-    const accessToken = generateToken(
+    const { accessToken, refreshToken } = generateToken(
       {
-        accountId: user!.id,
+        accountId: account!.id,
       },
       jti
     );
 
-    await addRefreshTokenToWhitelist(jti, accessToken.refreshToken, user!.id);
+    await addRefreshTokenToWhitelist(jti, refreshToken, account!.id);
 
     return responseJson(res, 200, {
       message: "Login successfully",
-      accessToken: accessToken.accessToken,
-      refreshToken: accessToken.refreshToken,
+      accessToken,
+      refreshToken,
+      account: {
+        id: account!.id,
+        username: account!.userName,
+        email: account!.email,
+      },
     });
   } catch (error) {
     return responseJson(res, 500, { error });
@@ -129,8 +123,8 @@ export const refreshToken = async (req: Request, res: Response) => {
       });
     }
 
-    const user = await findAccountById(payload.accountId ?? "");
-    if (!user) {
+    const account = await findAccountById(payload.accountId ?? "");
+    if (!account) {
       return errorResponse(res, 401, {
         msg: "User not found",
       });
@@ -139,11 +133,11 @@ export const refreshToken = async (req: Request, res: Response) => {
     await deleteRefreshToken(savedRefreshToken!.id);
     const jti = uuidv4();
     const { accessToken, refreshToken: newRefreshToken } = generateToken(
-      { accountId: user!.id },
+      { accountId: account!.id },
       jti
     );
 
-    await addRefreshTokenToWhitelist(jti, newRefreshToken, user!.id);
+    await addRefreshTokenToWhitelist(jti, newRefreshToken, account!.id);
 
     return responseJson(res, 200, {
       message: "Refresh token successfully",
