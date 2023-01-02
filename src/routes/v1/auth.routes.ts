@@ -2,7 +2,6 @@ import {
   register,
   login,
   refreshToken,
-  logout,
 } from "../../controllers/auth.controller";
 import express from "express";
 import {
@@ -17,6 +16,5 @@ const router = express.Router();
 router.post("/register", registerValidator, register);
 router.post("/login", loginValidator, login);
 router.post("/refresh-token", refreshTokenValidator, refreshToken);
-router.delete("/logout", isAuthenticated, logout);
 
 export default router;

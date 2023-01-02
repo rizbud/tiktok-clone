@@ -148,17 +148,3 @@ export const refreshToken = async (req: Request, res: Response) => {
     return responseJson(res, 500, { error });
   }
 };
-
-export const logout = async (req: Request, res: Response) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    await deleteRefreshToken(token!);
-
-    return responseJson(res, 200, {
-      message: "Logout successfully",
-    });
-  } catch (error) {
-    return responseJson(res, 500, { error });
-  }
-};

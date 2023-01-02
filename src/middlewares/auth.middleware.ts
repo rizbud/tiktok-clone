@@ -17,7 +17,7 @@ export const isAuthenticated = async (
     const decoded = verifyAccessToken(token);
     req.body.accountId = decoded.accountId;
     next();
-  } catch (error) {
-    return responseJson(res, 401, { error });
+  } catch (error: any) {
+    return responseJson(res, 401, { message: error?.message });
   }
 };

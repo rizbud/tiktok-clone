@@ -2,8 +2,7 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-const { JWT_ACCESS_SECRET = "secret", JWT_REFRESH_SECRET = "secret" } =
-  process.env;
+const { JWT_ACCESS_SECRET = "secret" } = process.env;
 
 interface IJwtPayload {
   accountId: string;
@@ -21,7 +20,7 @@ export const generateRefreshToken = (user: IJwtPayload, jti: string) => {
       accountId: user.accountId,
       jti,
     },
-    JWT_REFRESH_SECRET,
+    JWT_ACCESS_SECRET,
     {
       expiresIn: "1d",
     }
@@ -29,7 +28,7 @@ export const generateRefreshToken = (user: IJwtPayload, jti: string) => {
 };
 
 export const verifyAccessToken = (token: string) => {
-  return jwt.verify(token, JWT_REFRESH_SECRET) as jwt.JwtPayload;
+  return jwt.verify(token, JWT_ACCESS_SECRET) as jwt.JwtPayload;
 };
 
 export const generateToken = (user: IJwtPayload, jti: string) => {
