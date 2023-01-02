@@ -37,7 +37,7 @@ export const register = async (req: Request, res: Response) => {
       message: "User created successfully",
       account: {
         id: Account.id,
-        username: Account.userName,
+        username: Account.username,
         email: Account.email,
       },
     });
@@ -84,7 +84,7 @@ export const login = async (req: Request, res: Response) => {
       refreshToken,
       account: {
         id: account!.id,
-        username: account!.userName,
+        username: account!.username,
         email: account!.email,
       },
     });
@@ -143,6 +143,20 @@ export const refreshToken = async (req: Request, res: Response) => {
       message: "Refresh token successfully",
       accessToken,
       refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    return responseJson(res, 500, { error });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    await deleteRefreshToken(token!);
+
+    return responseJson(res, 200, {
+      message: "Logout successfully",
     });
   } catch (error) {
     return responseJson(res, 500, { error });

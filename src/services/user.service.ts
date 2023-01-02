@@ -23,16 +23,16 @@ export const createUserByEmailAndPassword = async (user: IUserPayload) => {
     db.account.create({
       data: {
         email: user.email,
-        userName: user.username,
+        username: user.username,
         password: user.password,
       },
     }),
     db.user.create({
       data: {
         fullName: user.fullName,
-        Account: {
+        account: {
           connect: {
-            email: user.email,
+            username: user.username,
           },
         },
       },
@@ -43,7 +43,7 @@ export const createUserByEmailAndPassword = async (user: IUserPayload) => {
 export const findAccountByUsername = async (username: string) => {
   return await db.account.findUnique({
     where: {
-      userName: username,
+      username,
     },
   });
 };
