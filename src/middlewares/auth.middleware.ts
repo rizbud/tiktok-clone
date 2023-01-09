@@ -21,3 +21,23 @@ export const isAuthenticated = async (
     return responseJson(res, 401, { message: error?.message });
   }
 };
+
+export const optionalAuthenticated = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = verifyAccessToken(token);
+    req.body.accountId = decoded.accountId;
+    next();
+  } catch (error: any) {
+    return next();
+  }
+};

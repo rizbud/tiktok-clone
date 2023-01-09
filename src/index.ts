@@ -23,7 +23,7 @@ app.use("/api", routesV1);
 // error 404 handler
 app.use((req, res) => {
   responseJson(res, 404, {
-    message: "Not Found",
+    message: "URL Not Found",
   });
 });
 

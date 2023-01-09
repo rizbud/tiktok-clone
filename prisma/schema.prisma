@@ -11,24 +11,30 @@ datasource db {
 }
 
 model Account {
-  id            String         @id @unique @default(uuid())
-  email         String         @unique
+  id            String                 @id @unique @default(uuid())
+  email         String                 @unique
   password      String
-  username      String         @unique
+  username      String                 @unique
   refreshTokens RefreshToken[]
   user          User[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  deletedAt     DateTime?
+  content       Content[]
+  alreadyViewed AlreadyViewedContent[]
+  like          Like[]
+  comment       Comment[]
 }
 
 model User {
-  id        String   @id @unique @default(uuid())
+  id        String    @id @unique @default(uuid())
   fullName  String
   avatar    String?
-  bio       String?  @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  account   Account  @relation(fields: [accountId], references: [id])
+  bio       String?   @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  account   Account   @relation(fields: [accountId], references: [id])
   accountId String
 }
 
@@ -40,4 +46,52 @@ model RefreshToken {
   revoked     Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Content {
+  id            String                 @id @unique @default(uuid())
+  mediaUrl      String
+  caption       String?                @db.Text
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  deletedAt     DateTime?
+  author        Account                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId      String
+  alreadyViewed AlreadyViewedContent[]
+  like          Like[]
+  comment       Comment[]
+}
+
+model AlreadyViewedContent {
+  id        String    @id @unique @default(uuid())
+  contentId String
+  content   Content   @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  viewerId  String
+  viewer    Account   @relation(fields: [viewerId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Like {
+  id        String    @id @unique @default(uuid())
+  contentId String
+  content   Content   @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Comment {
+  id        String    @id @unique @default(uuid())
+  contentId String
+  content   Content   @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  comment   String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
