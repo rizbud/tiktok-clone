@@ -11,6 +11,11 @@ import {
   createComment,
   deleteComment,
 } from "../../controllers/comment.controller";
+import {
+  createLike,
+  deleteLike,
+  getLikes,
+} from "../../controllers/like.controller";
 
 import {
   isAuthenticated,
@@ -33,5 +38,10 @@ router.delete(
   isAuthenticated,
   deleteComment
 );
+
+// like
+router.get("/:contentId/likes", getLikes);
+router.post("/:contentId/likes", isAuthenticated, createLike);
+router.delete("/:contentId/likes", isAuthenticated, deleteLike);
 
 export default router;
