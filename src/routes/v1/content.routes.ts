@@ -5,13 +5,17 @@ import {
   deleteContent,
 } from "../../controllers/content.controller";
 import express from "express";
-import { isAuthenticated } from "../../middlewares/auth.middleware";
+import {
+  isAuthenticated,
+  optionalAuthenticated,
+} from "../../middlewares/auth.middleware";
+import { multerMiddleware } from "../../middlewares/multer.middleware";
 
 const router = express.Router();
 
 router.get("/", getContents);
-router.get("/:id", getContent);
-router.post("/", isAuthenticated, createContent);
+router.get("/:id", optionalAuthenticated, getContent);
+router.post("/", isAuthenticated, multerMiddleware, createContent);
 router.delete("/:id", deleteContent);
 
 export default router;

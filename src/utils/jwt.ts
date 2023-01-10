@@ -10,7 +10,7 @@ interface IJwtPayload {
 
 export const generateAccessToken = (user: IJwtPayload) => {
   return jwt.sign(user, JWT_ACCESS_SECRET, {
-    expiresIn: "1d",
+    expiresIn: "30d",
   });
 };
 
@@ -22,7 +22,7 @@ export const generateRefreshToken = (user: IJwtPayload, jti: string) => {
     },
     JWT_ACCESS_SECRET,
     {
-      expiresIn: "1d",
+      expiresIn: "30d",
     }
   );
 };

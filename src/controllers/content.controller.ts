@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import responseJson from "../helpers/response-json";
+import { verifyAccessToken } from "../utils/jwt";
 import db from "../utils/prisma";
 
 export const getContents = async (req: Request, res: Response) => {
@@ -84,14 +85,18 @@ export const getContent = async (req: Request, res: Response) => {
 };
 
 export const createContent = (req: Request, res: Response) => {
-  const { accountId, caption, media } = req.body;
+  const { caption } = req.body;
+  const { file } = req;
+
+  const token = req.headers.authorization?.split(" ")[1];
+  const decoded = verifyAccessToken(token!);
 
   try {
     const content = db.content.create({
       data: {
         caption,
-        mediaUrl: "",
-        authorId: accountId,
+        mediaUrl: file?.path || "",
+        authorId: decoded.accountId,
       },
     });
 
