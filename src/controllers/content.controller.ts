@@ -21,6 +21,12 @@ export const getContents = async (req: Request, res: Response) => {
     const content = await db.content.findMany({
       include: {
         author: true,
+        _count: {
+          select: {
+            comment: true,
+            like: true,
+          },
+        },
       },
       take: Number(limit),
       skip: (Number(page) - 1) * Number(limit),
@@ -59,6 +65,12 @@ export const getContent = async (req: Request, res: Response) => {
     const content = await db.content.findUnique({
       include: {
         author: true,
+        _count: {
+          select: {
+            comment: true,
+            like: true,
+          },
+        },
       },
       where: {
         id,

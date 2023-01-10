@@ -16,7 +16,7 @@ export const isAuthenticated = async (
   try {
     const decoded = verifyAccessToken(token);
     req.body.accountId = decoded.accountId;
-    next();
+    return next();
   } catch (error: any) {
     return responseJson(res, 401, { message: error?.message });
   }
@@ -36,7 +36,7 @@ export const optionalAuthenticated = async (
   try {
     const decoded = verifyAccessToken(token);
     req.body.accountId = decoded.accountId;
-    next();
+    return next();
   } catch (error: any) {
     return next();
   }
