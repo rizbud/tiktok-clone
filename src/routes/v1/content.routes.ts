@@ -16,6 +16,6 @@ const router = express.Router();
 router.get("/", getContents);
 router.get("/:id", optionalAuthenticated, getContent);
 router.post("/", isAuthenticated, multerMiddleware, createContent);
-router.delete("/:id", deleteContent);
+router.delete("/:id", isAuthenticated, deleteContent);
 
 export default router;

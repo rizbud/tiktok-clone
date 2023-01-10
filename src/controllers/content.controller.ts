@@ -12,20 +12,29 @@ export const getContents = async (req: Request, res: Response) => {
   } = req.query;
 
   try {
-    const total = await db.content.count();
+    const total = await db.content.count({
+      where: {
+        deletedAt: null,
+      },
+    });
     const totalPage = Math.ceil(total / Number(limit));
     const content = await db.content.findMany({
       include: {
         author: true,
       },
       take: Number(limit),
-      skip: Number(page) * Number(limit),
+      skip: (Number(page) - 1) * Number(limit),
       orderBy: {
         [order as string]: sort,
       },
       where: {
         deletedAt: null,
       },
+    });
+
+    content.forEach((item) => {
+      // @ts-ignore
+      delete item.author.password;
     });
 
     return responseJson(res, 200, {
@@ -60,6 +69,9 @@ export const getContent = async (req: Request, res: Response) => {
       return responseJson(res, 404, { message: "Content not found" });
     }
 
+    // @ts-ignore
+    delete content.author.password;
+
     if (accountId) {
       const existing = await db.alreadyViewedContent.findFirst({
         where: {
@@ -84,7 +96,7 @@ export const getContent = async (req: Request, res: Response) => {
   }
 };
 
-export const createContent = (req: Request, res: Response) => {
+export const createContent = async (req: Request, res: Response) => {
   const { caption } = req.body;
   const { file } = req;
 
@@ -92,15 +104,21 @@ export const createContent = (req: Request, res: Response) => {
   const decoded = verifyAccessToken(token!);
 
   try {
-    const content = db.content.create({
+    const content = await db.content.create({
       data: {
         caption,
         mediaUrl: file?.path || "",
         authorId: decoded.accountId,
       },
+      include: {
+        author: true,
+      },
     });
 
-    return responseJson(res, 200, { data: content });
+    // @ts-ignore
+    delete content.author.password;
+
+    return responseJson(res, 201, content);
   } catch (error) {
     return responseJson(res, 500, { error });
   }
@@ -111,18 +129,15 @@ export const deleteContent = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   try {
-    const content = await db.content.findUnique({
+    const content = await db.content.findFirst({
       where: {
         id,
+        authorId: accountId,
       },
     });
 
     if (!content || content.deletedAt) {
       return responseJson(res, 404, { message: "Content not found" });
-    }
-
-    if (content.authorId !== accountId) {
-      return responseJson(res, 401, { message: "Unauthorized" });
     }
 
     await db.content.update({
