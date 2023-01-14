@@ -9,12 +9,14 @@ export const getContents = async (req: Request, res: Response) => {
     limit = 10,
     sort = "desc",
     order = "createdAt",
+    author,
   } = req.query;
 
   try {
     const total = await db.content.count({
       where: {
         deletedAt: null,
+        authorId: author as string,
       },
     });
     const totalPage = Math.ceil(total / Number(limit));
@@ -35,6 +37,7 @@ export const getContents = async (req: Request, res: Response) => {
       },
       where: {
         deletedAt: null,
+        authorId: author as string,
       },
     });
 
