@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { cloudinaryDelete, getPublicId } from "../utils/cloudinary";
 import responseJson from "../helpers/response-json";
 import { verifyAccessToken } from "../utils/jwt";
 import db from "../utils/prisma";
@@ -151,7 +152,7 @@ export const deleteContent = async (req: Request, res: Response) => {
       },
     });
 
-    if (!content || content.deletedAt) {
+    if (!content) {
       return responseJson(res, 404, { message: "Content not found" });
     }
 
@@ -163,6 +164,9 @@ export const deleteContent = async (req: Request, res: Response) => {
         deletedAt: new Date(),
       },
     });
+
+    const publicId = getPublicId(content.mediaUrl);
+    await cloudinaryDelete("contents/" + publicId);
 
     return responseJson(res, 204);
   } catch (error) {
